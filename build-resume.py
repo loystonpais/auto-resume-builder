@@ -10,64 +10,62 @@ from github import Github, Auth
 from groq import Groq
 from linkedin_api import Linkedin
 
+
 def parse_arguments():
     parser = argparse.ArgumentParser(
-        description='Generate a professional resume from LinkedIn and GitHub data',
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        description="Generate a professional resume from LinkedIn and GitHub data",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    
+
     parser.add_argument(
-        '--output-dir',
-        default=os.environ.get('RESUME_OUTPUT_DIR', './build'),
-        help='Directory to save the generated resume (default: $RESUME_OUTPUT_DIR or ./build)'
+        "--output-dir",
+        default=os.environ.get("RESUME_OUTPUT_DIR", "./build"),
+        help="Directory to save the generated resume (default: $RESUME_OUTPUT_DIR or ./build)",
     )
-    
+
     parser.add_argument(
-        '--profile-image',
-        default=os.environ.get('RESUME_PROFILE_IMAGE_PATH'),
-        help='Path to profile image (default: $RESUME_PROFILE_IMAGE_PATH)'
+        "--profile-image",
+        default=os.environ.get("RESUME_PROFILE_IMAGE_PATH"),
+        help="Path to profile image (default: $RESUME_PROFILE_IMAGE_PATH)",
     )
-    
+
     parser.add_argument(
-        '--college-logo',
-        default=os.environ.get('RESUME_COLLEGE_LOGO_PATH'),
-        help='Path to college logo (default: $RESUME_COLLEGE_LOGO_PATH)'
+        "--college-logo",
+        default=os.environ.get("RESUME_COLLEGE_LOGO_PATH"),
+        help="Path to college logo (default: $RESUME_COLLEGE_LOGO_PATH)",
     )
-    
+
     parser.add_argument(
-        '--linkedin-profile',
-        default=os.environ.get('RESUME_LINKEDIN_PROFILE'),
-        help='LinkedIn profile username (default: $RESUME_LINKEDIN_PROFILE)'
+        "--linkedin-profile",
+        default=os.environ.get("RESUME_LINKEDIN_PROFILE"),
+        help="LinkedIn profile username (default: $RESUME_LINKEDIN_PROFILE)",
     )
-    
+
     parser.add_argument(
-        '--email',
-        default=os.environ.get('RESUME_EMAIL'),
-        help='Email address to display on resume (default: $RESUME_EMAIL)'
+        "--email",
+        default=os.environ.get("RESUME_EMAIL"),
+        help="Email address to display on resume (default: $RESUME_EMAIL)",
     )
-    
+
     parser.add_argument(
-        '--phone',
-        default=os.environ.get('RESUME_PHONENO'),
-        help='Phone number to display on resume (default: $RESUME_PHONENO)'
+        "--phone",
+        default=os.environ.get("RESUME_PHONENO"),
+        help="Phone number to display on resume (default: $RESUME_PHONENO)",
     )
-    
+
     parser.add_argument(
-        '--github-url',
-        default=os.environ.get('RESUME_GITHUB_URL'),
-        help='GitHub profile URL (default: $RESUME_GITHUB_URL)'
+        "--github-url",
+        default=os.environ.get("RESUME_GITHUB_URL"),
+        help="GitHub profile URL (default: $RESUME_GITHUB_URL)",
     )
-    
-    parser.add_argument(
-        '--debug',
-        action='store_true',
-        help='Enable debug logging'
-    )
+
+    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
 
     return parser.parse_args()
 
+
 args = parse_arguments()
-    
+
 # Configure logging
 log_level = logging.DEBUG if args.debug else logging.INFO
 logging.basicConfig(level=log_level)
@@ -90,7 +88,7 @@ RESUME_OUTPUT_DIR = args.output_dir
 logging.info("Initializing clients...")
 logging.basicConfig(level=logging.DEBUG)
 
-linkedin = Linkedin(RESUME_LINKEDIN_EMAIL,RESUME_LINKEDIN_PASSWORD)
+linkedin = Linkedin(RESUME_LINKEDIN_EMAIL, RESUME_LINKEDIN_PASSWORD)
 logging.info("Linkedin client initialized.")
 
 groq = Groq(api_key=RESUME_GROQ_API_KEY)
@@ -111,9 +109,10 @@ def groq_chat(content):
         ],
         model="llama3-70b-8192",
         temperature=0.01,
-        response_format={"type": "json_object"}
+        response_format={"type": "json_object"},
     )
     return chat_completion.choices[0].message.content
+
 
 def get_github_languages():
     languages = {}
@@ -138,6 +137,7 @@ def fix_text(text, bypass=True):
     """
     return json.loads(groq_chat(content))["fixed_text"]
 
+
 def extract_project_description_link(description):
     pattern = r"@([\w./-]+)$"
     m = re.search(pattern, description)
@@ -145,6 +145,7 @@ def extract_project_description_link(description):
     if m:
         return m.group(1)
     return None
+
 
 logging.info("Fetching profile from LinkedIn.")
 linkedin_profile = linkedin.get_profile(RESUME_LINKEDIN_PROFILE)
@@ -155,8 +156,9 @@ name = linkedin_profile["firstName"] + " " + linkedin_profile["lastName"]
 email = RESUME_EMAIL or linkedin_profile["emailAddress"]
 phone = RESUME_PHONENO or linkedin_profile["phoneNumbers"][0]["number"]
 logging.info(f"{name = }, {email =}")
-address = linkedin_profile["geoLocationName"] + ", " + linkedin_profile["geoCountryName"]
-
+address = (
+    linkedin_profile["geoLocationName"] + ", " + linkedin_profile["geoCountryName"]
+)
 
 
 header_section = f"""
@@ -176,7 +178,7 @@ header_section = f"""
 """
 
 
-contact_section = f'''
+contact_section = f"""
 <div class="contact">
         {address} <br/>
         Mobile: +91 63601 27946
@@ -190,32 +192,30 @@ contact_section = f'''
         | Portfolio Website: <a href="https://loy.ftp.sh" target="_blank">loy.ftp.sh</a>
 
       </div>
-'''
-
+"""
 
 
 summary = linkedin_profile["summary"]
-profile_summary_section = f'''
+profile_summary_section = f"""
 <div class="section">
         <h2>Profile Summary</h2>
         <p>
             {summary}
         </p>
       </div>
-'''
+"""
 
 language_proficiency_list = []
-for language in linkedin_profile['languages']:
-    language_name = language['name']
-    proficiency = language['proficiency']
+for language in linkedin_profile["languages"]:
+    language_name = language["name"]
+    proficiency = language["proficiency"]
     if proficiency == "NATIVE_OR_BILINGUAL":
         proficiency = "Fluent"
     elif proficiency == "FULL_PROFESSIONAL":
         proficiency = "Fluent"
     else:
         continue
-    language_proficiency_list.append(
-        f"<li>{language_name} ({proficiency})</li>")
+    language_proficiency_list.append(f"<li>{language_name} ({proficiency})</li>")
 language_proficiency_span = "\n".join(language_proficiency_list)
 language_proficiency_section = f"""
 <div class="section">
@@ -225,7 +225,6 @@ language_proficiency_section = f"""
     </ul>
 </div>
 """
-
 
 
 academic_span_list = []
@@ -238,17 +237,17 @@ for edu in linkedin_profile.get("education", []):
     end_year = edu.get("timePeriod", {}).get("endDate", {}).get("year", "")
     grade = edu.get("grade")
 
-
     if grade and grade.endswith("%"):
         grade = f"{grade} (CGPA)"
     if degree:
         academic_span_list.append(
-            f'''
+            f"""
             <li>
                 <span class="title">{degree}{f" ({field})" if field else ""}, </span>
     {school} {f"({start_year} - {end_year})" if start_year and end_year else f"({end_year})"}{f": {grade}" if grade else ""}
             </li>
-        ''')
+        """
+        )
 academic_span = "\n".join(academic_span_list)
 
 academic_section = f"""
@@ -261,21 +260,22 @@ academic_section = f"""
 """
 
 
-
-
-
 skills = [skill["name"] for skill in linkedin_profile_skills]
-reply = groq_chat(f"write one-liner description for the given skills: {', '.join(skills)}. Arrange them in a better order for resume. The json schema should be for example" 
-                + json.dumps({"skills": [{"lang": "langName", "line": "line"}]}))
+reply = groq_chat(
+    f"write one-liner description for the given skills: {', '.join(skills)}. Arrange them in a better order for resume. The json schema should be for example"
+    + json.dumps({"skills": [{"lang": "langName", "line": "line"}]})
+)
 reply = [(data["lang"], data["line"]) for data in json.loads(reply)["skills"]]
 
 skills_list = "\n".join(f"<li>{skill}</>" for skill in skills)
 
 skills_list2 = "\n".join(f"<li>{lang}</li>" for lang, line in reply)
 
-skills_paragraph = '<p class="skills">' + ", ".join(f"{lang}" for lang, line in reply) + "</p>"
+skills_paragraph = (
+    '<p class="skills">' + ", ".join(f"{lang}" for lang, line in reply) + "</p>"
+)
 
-skills_list_wrapped = f"<ul> {skills_list} </ul>" 
+skills_list_wrapped = f"<ul> {skills_list} </ul>"
 
 skills_section = f"""
 <div class="section">
@@ -292,7 +292,9 @@ for project in projects:
     description = project.get("description", "").strip()
     link = extract_project_description_link(description)
     if link.startswith("github.com"):
-        description = description.replace(f"@{link}", f'<a href="https://{link}" target="_blank">github</a>')
+        description = description.replace(
+            f"@{link}", f'<a href="https://{link}" target="_blank">github</a>'
+        )
     elif link is None:
         pass
     else:
@@ -334,4 +336,6 @@ final = f"""
 
 os.system(f"mkdir -p {RESUME_OUTPUT_DIR}/")
 
-HTML(string=final, base_url=".").write_pdf(f"{RESUME_OUTPUT_DIR}/resume.pdf", stylesheets=[CSS("resume.css")])
+HTML(string=final, base_url=".").write_pdf(
+    f"{RESUME_OUTPUT_DIR}/resume.pdf", stylesheets=[CSS("resume.css")]
+)

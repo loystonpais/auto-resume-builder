@@ -1,5 +1,4 @@
-{ pkgs ? import <nixpkgs> {} }:
-{
+{ pkgs ? import <nixpkgs> { } }: {
   groq = pkgs.python3Packages.buildPythonPackage rec {
     pname = "groq";
     version = "0.13.0";

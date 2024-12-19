@@ -1,12 +1,10 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ pkgs ? import <nixpkgs> { } }:
 
 let
 
   inherit (import ./derivations.nix { inherit pkgs; }) groq linkedin-api;
 
-in
-
-pkgs.mkShell {
+in pkgs.mkShell {
   buildInputs = with pkgs; [
     python3
     python3Packages.reportlab
