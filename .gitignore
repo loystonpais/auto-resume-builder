@@ -1,0 +1,7 @@
+.env
+.envrc
+.direnv
+resume.pdf
+build
+__pycache__
+result

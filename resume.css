@@ -1,0 +1,58 @@
+@page {
+    size: A4;
+    margin: 2pt; /* Standardized margin for all sides */
+    padding: 0;
+    color: #303339;
+    border: 2pt solid gray;
+}
+
+body {
+    font-family: "Trajan Pro", "Adobe Caslon Pro", "Minion Pro", serif;
+    color: #303339;
+    line-height: 1.6;
+    font-size: 10pt; /* Slightly adjusted for readability */
+    padding: 10mm; /* Consistent padding within the page */
+}
+
+header {
+    font-family: "Trajan Pro", serif;
+    padding-bottom: 5mm; /* Adjusted for consistency */
+    color: #303339;
+}
+
+.contact {
+    font-size: 10pt;
+    margin-bottom: 2mm; /* Standardized spacing */
+}
+
+h1 {
+    font-size: 24pt; /* Adjusted to align with A4 proportions */
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 2mm; /* Consistent spacing */
+}
+
+h2 {
+    font-size: 12pt;
+    font-weight: bold;
+    margin-bottom: 2mm;
+}
+
+ul {
+    margin: 0;
+    padding-left: 10mm; /* Standardized indentation */
+    list-style-type: circle;
+}
+
+.title {
+    font-weight: bold;
+}
+
+a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.section a {
+    font-size: 8pt;
+}
