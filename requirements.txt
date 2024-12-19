@@ -1,0 +1,4 @@
+groq
+linkedin_api
+github
+weasyprint
