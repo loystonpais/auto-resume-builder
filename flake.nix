@@ -41,7 +41,7 @@
             wantedBy = [ "timers.target" ];
             timerConfig = {
               OnBootSec = "5m";
-              OnUnitActiveSec = "5m";
+              OnUnitActiveSec = "1d";
               Unit = "auto-resume-builder.service";
             };
           };
